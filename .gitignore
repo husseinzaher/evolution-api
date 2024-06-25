@@ -48,3 +48,4 @@ docker-compose.yaml
 .DS_Store
 *.DS_Store
 .tool-versions
+.idea
