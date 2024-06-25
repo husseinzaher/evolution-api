@@ -125,8 +125,8 @@ SQS:
   REGION: "us-east-1"
 
 WEBSOCKET:
-  ENABLED: false
-  GLOBAL_EVENTS: false
+  ENABLED: true
+  GLOBAL_EVENTS: true
 
 WA_BUSINESS:
   TOKEN_WEBHOOK: evolution
