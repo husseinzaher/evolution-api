@@ -32,6 +32,14 @@ export enum Events {
   LABELS_ASSOCIATION = 'labels.association',
   CREDS_UPDATE = 'creds.update',
   MESSAGING_HISTORY_SET = 'messaging-history.set',
+  CONNECTION_OPEN = 'connection.open',
+  EVENT_TEST = 'event.test',
+  ERROR = 'error',
+  INSTANCE_CREATED_DATA = 'instance.created.data',
+  CONNECTION_CLOSED = 'connection.closed',
+  CONNECTION_LOGGED_OUT = 'connection.logout.out',
+  QRCODE_LIMIT_REACHED = 'qrcode.limit.reached',
+  NO_CONNECTION = 'no.connection',
 }
 
 export declare namespace wa {

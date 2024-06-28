@@ -54,6 +54,9 @@ export class WhatsappSocketController {
 
   public instance: wa.Instance = {};
   public socketIo: SocketIO;
+  private endSession = false;
+  public phoneNumber: string;
+  public mobile: string;
 
   public async startConnection(instanceDto: InstanceDto, socketIo: SocketIO) {
     this.socketIo = socketIo;
@@ -66,9 +69,9 @@ export class WhatsappSocketController {
         await delay(5000);
       }
 
-      const instance = this.waMonitor.waInstances[instanceName];
+      const WAInstance = this.waMonitor.waInstances[instanceName];
 
-      const state = instance?.connectionStatus?.state;
+      const state = WAInstance?.connectionStatus?.state;
 
       this.logger.verbose('state: ' + state);
 
@@ -76,21 +79,21 @@ export class WhatsappSocketController {
         throw new BadRequestException('The "' + instanceName + '" instance does not exist');
       }
 
-      this.instance = instance.instance;
-      console.log('instance.instance', instance.instance);
+      this.instance = WAInstance.instance;
+      console.log('instance.instance', WAInstance.instance);
       // event handler
-      instance?.client?.ev?.process(async (events) => {
-        await this.sendDataToWebsocket('event.test', events);
+      WAInstance?.client?.ev?.process(async (events) => {
+        await this.sendDataToWebsocket(Events.EVENT_TEST, events);
         console.log('connection.update', events['connection.update']);
 
         if (events['connection.update']) {
           console.log('events[connection.update]', events['connection.update']);
-          await this.connectionUpdate(events['connection.update']);
+          await this.connectionUpdate(events['connection.update'], WAInstance);
         }
 
         if (events['connection.update']['isNewLogin']) {
           this.waMonitor.instanceInfo(instanceName, true).then((res) => {
-            this.sendDataToWebsocket('connection.open', {
+            this.sendDataToWebsocket(Events.CONNECTION_OPEN, {
               instance: res[0].instance,
               state: 'open',
             });
@@ -99,29 +102,29 @@ export class WhatsappSocketController {
       });
 
       if (state == 'connecting') {
-        await this.sendDataToWebsocket('qrcode.updated', {
+        await this.sendDataToWebsocket(Events.QRCODE_UPDATED, {
           instanceName: instanceName,
-          qrcode: instance.qrCode,
+          qrcode: WAInstance.qrCode,
         });
-        return instance.qrCode;
+        return WAInstance.qrCode;
       }
 
       if (state == 'close') {
         this.logger.verbose('connecting');
-        await instance.connectToWhatsapp(instanceDto.number, instanceDto.mobile);
+        await WAInstance.connectToWhatsapp(instanceDto.number, instanceDto.mobile);
 
         await delay(5000);
-        await this.sendDataToWebsocket('qrcode.updated', {
+        await this.sendDataToWebsocket(Events.QRCODE_UPDATED, {
           instanceName: instanceName,
-          qrcode: instance.qrCode,
+          qrcode: WAInstance.qrCode,
         });
 
-        return instance.qrCode;
+        return WAInstance.qrCode;
       }
 
       if (state === 'open') {
         this.waMonitor.instanceInfo(instanceName, true).then((res) => {
-          this.sendDataToWebsocket('connection.open', {
+          this.sendDataToWebsocket(Events.CONNECTION_OPEN, {
             instance: res[0].instance,
             state: 'open',
           });
@@ -133,20 +136,16 @@ export class WhatsappSocketController {
           instanceName: instanceName,
           status: state,
         },
-        qrcode: instance?.qrCode,
+        qrcode: WAInstance?.qrCode,
       };
     } catch (error) {
-      await this.sendDataToWebsocket('error', error);
+      await this.sendDataToWebsocket(Events.ERROR, error);
       this.logger.error(error);
     }
   }
 
   public async createInstance({
     instanceName,
-    webhook,
-    webhook_by_events,
-    webhook_base64,
-    events,
     qrcode,
     number,
     mobile,
@@ -170,12 +169,6 @@ export class WhatsappSocketController {
     read_messages,
     read_status,
     sync_full_history,
-    websocket_enabled,
-    websocket_events,
-    rabbitmq_enabled,
-    rabbitmq_events,
-    sqs_enabled,
-    sqs_events,
     typebot_url,
     typebot,
     typebot_expire,
@@ -183,7 +176,6 @@ export class WhatsappSocketController {
     typebot_delay_message,
     typebot_unknown_message,
     typebot_listening_from_me,
-    proxy,
   }: InstanceDto) {
     try {
       this.logger.verbose('requested createInstance from ' + instanceName + ' instance');
@@ -246,8 +238,6 @@ export class WhatsappSocketController {
 
       this.logger.verbose('hash: ' + hash + ' generated');
 
-      let webhookEvents: string[];
-
       this.logger.verbose('creating settings');
       const settings: wa.LocalSettings = {
         reject_call: reject_call || false,
@@ -300,24 +290,6 @@ export class WhatsappSocketController {
             status: 'created',
           },
           hash,
-          webhook: {
-            webhook,
-            webhook_by_events,
-            webhook_base64,
-            events: webhookEvents,
-          },
-          websocket: {
-            enabled: websocket_enabled,
-            events: websocketEvents,
-          },
-          rabbitmq: {
-            enabled: rabbitmq_enabled,
-            events: rabbitmqEvents,
-          },
-          sqs: {
-            enabled: sqs_enabled,
-            events: sqsEvents,
-          },
           typebot: {
             enabled: typebot_url ? true : false,
             url: typebot_url,
@@ -389,7 +361,7 @@ export class WhatsappSocketController {
         this.logger.log(error);
       }
 
-      this.sendDataToWebsocket('instance.created.data', {
+      this.sendDataToWebsocket(Events.INSTANCE_CREATED_DATA, {
         instance: {
           instanceName: instance.instanceName,
           instanceId: instanceId,
@@ -399,24 +371,6 @@ export class WhatsappSocketController {
           status: 'created',
         },
         hash,
-        webhook: {
-          webhook,
-          webhook_by_events,
-          webhook_base64,
-          events: webhookEvents,
-        },
-        websocket: {
-          enabled: websocket_enabled,
-          events: websocketEvents,
-        },
-        rabbitmq: {
-          enabled: rabbitmq_enabled,
-          events: rabbitmqEvents,
-        },
-        sqs: {
-          enabled: sqs_enabled,
-          events: sqsEvents,
-        },
         typebot: {
           enabled: typebot_url ? true : false,
           url: typebot_url,
@@ -458,14 +412,14 @@ export class WhatsappSocketController {
     const { instance } = await this.connectionState({ instanceName });
 
     if (instance.state === 'close') {
-      await this.sendDataToWebsocket('connection.closed', { instanceName: instanceName });
+      await this.sendDataToWebsocket(Events.CONNECTION_CLOSED, { instanceName: instanceName });
       throw new BadRequestException('The "' + instanceName + '" instance is not connected');
     }
 
     try {
       await this.waMonitor.waInstances[instanceName]?.logoutInstance();
 
-      await this.sendDataToWebsocket('connection.logged.out', {
+      await this.sendDataToWebsocket(Events.CONNECTION_LOGGED_OUT, {
         instanceName: instanceName,
         message: 'Instance logged out',
       });
@@ -484,13 +438,13 @@ export class WhatsappSocketController {
     };
   }
 
-  public async connectionUpdate({ qr, connection, lastDisconnect }: Partial<ConnectionState>) {
+  public async connectionUpdate({ qr, connection, lastDisconnect }: Partial<ConnectionState>, WAInstance) {
     if (qr) {
       console.log('this.instance.qrcode.count', this.instance);
       console.log('this.qr', this.instance, connection);
       this.logger.verbose('QR code found');
       if (this.instance.qrcode.count === this.configService.get<QrCode>('QRCODE').LIMIT) {
-        await this.sendDataToWebsocket('qrcode.limit.reached', {
+        await this.sendDataToWebsocket(Events.QRCODE_LIMIT_REACHED, {
           instanceName: this.instance.name,
 
           message: 'QR code limit reached, please login again',
@@ -508,7 +462,7 @@ export class WhatsappSocketController {
         this.endSession = true;
 
         this.logger.verbose('Emmiting event logout.instance');
-        await this.sendDataToWebsocket('no.connection', this.instance.name);
+        await this.sendDataToWebsocket(Events.NO_CONNECTION, this.instance.name);
       }
 
       this.logger.verbose('Incrementing QR code count');
@@ -525,7 +479,7 @@ export class WhatsappSocketController {
 
       if (this.phoneNumber) {
         await delay(2000);
-        this.instance.qrcode.pairingCode = await this.client.requestPairingCode(this.phoneNumber);
+        this.instance.qrcode.pairingCode = await WAInstance.client.requestPairingCode(this.phoneNumber);
       } else {
         this.instance.qrcode.pairingCode = null;
       }
@@ -557,7 +511,7 @@ export class WhatsappSocketController {
       const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
       if (shouldReconnect) {
         this.logger.verbose('Reconnecting to whatsapp');
-        await (await this.client()).connectToWhatsapp();
+        await WAInstance.connectToWhatsapp();
       } else {
         this.logger.verbose('Do not reconnect to whatsapp');
         this.logger.verbose('Sending data to webhook in event STATUS_INSTANCE');
@@ -570,8 +524,8 @@ export class WhatsappSocketController {
 
     if (connection === 'open') {
       this.logger.verbose('Connection opened');
-      this.instance.wuid = this.client().client.user.id.replace(/:\d+/, '');
-      this.instance.profilePictureUrl = (await this.client().profilePicture(this.instance.wuid)).profilePictureUrl;
+      this.instance.wuid = WAInstance.client.user.id.replace(/:\d+/, '');
+      this.instance.profilePictureUrl = (await WAInstance.profilePicture(this.instance.wuid)).profilePictureUrl;
       const formattedWuid = this.instance.wuid.split('@')[0].padEnd(30, ' ');
       const formattedName = this.instance.name;
       this.logger.info(
@@ -588,22 +542,18 @@ export class WhatsappSocketController {
       `,
       );
 
-      await this.sendDataToWebsocket('connection.open', {
+      await this.sendDataToWebsocket(Events.CONNECTION_OPEN, {
         instance: this.instance,
         state: 'open',
       });
     }
 
     if (connection === 'connecting') {
-      if (this.mobile) this.client().sendMobileCode();
+      if (this.mobile) WAInstance.sendMobileCode();
     }
   }
 
-  private async client(instance) {
-    return this.waInstances[instance];
-  }
-
-  private async sendDataToWebsocket<T = any>(event: Events, data: T, local = true) {
+  private async sendDataToWebsocket<T = any>(event: Events, data: T) {
     console.log('send to websocket', event, data);
     this.socketIo.emit(event, data);
   }
