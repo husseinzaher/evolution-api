@@ -432,7 +432,7 @@ export class ConfigService {
         },
       },
       CONFIG_SESSION_PHONE: {
-        CLIENT: process.env?.CONFIG_SESSION_PHONE_CLIENT || 'Evolution API',
+        CLIENT: process.env?.CONFIG_SESSION_PHONE_CLIENT || 'Apploxa API',
         NAME: process.env?.CONFIG_SESSION_PHONE_NAME || 'Chrome',
         VERSION: process.env?.CONFIG_SESSION_PHONE_VERSION || null,
       },
