@@ -3,6 +3,11 @@ import { Server as SocketIO } from 'socket.io';
 
 import { configService, Cors, Websocket } from '../../../../config/env.config';
 import { Logger } from '../../../../config/logger.config';
+import { InstanceDto } from '../../../dto/instance.dto';
+import { waSocketServer } from '../../../server.module';
+
+// // eslint-disable-next-line @typescript-eslint/no-var-requires
+// const wa = require('../../../../server/whatsapp.js');
 
 const logger = new Logger('Socket');
 
@@ -20,6 +25,14 @@ export const initIO = (httpServer: Server) => {
 
     io.on('connection', (socket) => {
       logger.info('User connected');
+
+      socket.on('StartConnection', (instance: InstanceDto) => {
+        waSocketServer.startConnection(instance, io);
+      });
+
+      socket.on('logout', (instance: InstanceDto) => {
+        waSocketServer.logout(instance, io);
+      });
 
       socket.on('disconnect', () => {
         logger.info('User disconnected');

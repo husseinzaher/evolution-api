@@ -1,5 +1,7 @@
+import EventEmitter2 from 'eventemitter2';
+
 import { CacheEngine } from '../cache/cacheengine';
-import { configService, ProviderSession } from '../config/env.config';
+import { ConfigService, configService, ProviderSession } from '../config/env.config';
 import { eventEmitter } from '../config/event.config';
 import { Logger } from '../config/logger.config';
 import { dbserver } from '../libs/db.connect';
@@ -66,6 +68,7 @@ import { WAMonitoringService } from './services/monitor.service';
 import { ProxyService } from './services/proxy.service';
 import { SettingsService } from './services/settings.service';
 import { WebhookService } from './services/webhook.service';
+import { WhatsappSocketController } from './socket.server/whatsapp.socket.controller';
 
 const logger = new Logger('WA MODULE');
 
@@ -182,5 +185,23 @@ export const sendMessageController = new SendMessageController(waMonitor);
 export const chatController = new ChatController(waMonitor);
 export const groupController = new GroupController(waMonitor);
 export const labelController = new LabelController(waMonitor);
-
-logger.info('Module - ON');
+export const waSocketServer = new WhatsappSocketController(
+  waMonitor,
+  configService,
+  repository,
+  eventEmitter,
+  authService,
+  webhookService,
+  chatwootService,
+  settingsService,
+  websocketService,
+  rabbitmqService,
+  sqsService,
+  typebotService,
+  integrationService,
+  proxyController,
+  cache,
+  chatwootCache,
+  baileysCache,
+  providerFiles,
+);
