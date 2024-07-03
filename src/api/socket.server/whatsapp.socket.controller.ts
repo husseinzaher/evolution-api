@@ -90,15 +90,6 @@ export class WhatsappSocketController {
           console.log('events[connection.update]', events['connection.update']);
           await this.connectionUpdate(events['connection.update'], WAInstance);
         }
-
-        if (events['connection.update']['isNewLogin']) {
-          this.waMonitor.instanceInfo(instanceName, true).then((res) => {
-            this.sendDataToWebsocket(Events.CONNECTION_OPEN, {
-              instance: res[0].instance,
-              state: 'open',
-            });
-          });
-        }
       });
 
       if (state == 'connecting') {
