@@ -3,8 +3,8 @@ import { Server as SocketIO } from 'socket.io';
 
 import { configService, Cors, Websocket } from '../../../../config/env.config';
 import { Logger } from '../../../../config/logger.config';
-import {waSocketServer} from "../../../server.module";
-import {InstanceDto} from "../../../dto/instance.dto";
+import { InstanceDto } from '../../../dto/instance.dto';
+import { waSocketServer } from '../../../server.module';
 
 const logger = new Logger('Socket');
 
@@ -20,13 +20,13 @@ export const initIO = (httpServer: Server) => {
       },
     });
 
-    io.on('connection', (socket) => {
-
+    io.on('connection', async (socket) => {
+      const room = socket.handshake.query.instanceName;
+      socket.join(room);
 
       socket.on('StartConnection', (instance: InstanceDto) => {
         waSocketServer.startConnection(instance, io);
       });
-
       socket.on('logout', (instance: InstanceDto) => {
         waSocketServer.logout(instance, io);
       });

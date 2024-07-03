@@ -57,9 +57,11 @@ export class WhatsappSocketController {
   private endSession = false;
   public phoneNumber: string;
   public mobile: string;
+  public room: string;
 
   public async startConnection(instanceDto: InstanceDto, socketIo: SocketIO) {
     this.socketIo = socketIo;
+    this.room = instanceDto.instanceName;
     const instanceName = instanceDto.instanceName;
     try {
       this.logger.verbose('websocket requested connectToWhatsapp from ' + instanceName + ' instance');
@@ -546,6 +548,6 @@ export class WhatsappSocketController {
 
   private async sendDataToWebsocket<T = any>(event: Events, data: T) {
     console.log('send to websocket', event, data);
-    this.socketIo.emit(event, data);
+    this.socketIo.to(this.room).emit(event, data);
   }
 }
