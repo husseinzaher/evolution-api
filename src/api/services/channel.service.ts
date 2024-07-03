@@ -35,7 +35,7 @@ import { ContactQuery } from '../repository/contact.repository';
 import { MessageQuery } from '../repository/message.repository';
 import { MessageUpQuery } from '../repository/messageUp.repository';
 import { RepositoryBroker } from '../repository/repository.manager';
-import { waMonitor } from '../server.module';
+import { sendWebhookService, waMonitor } from '../server.module';
 import { Events, wa } from '../types/wa.types';
 import { CacheService } from './cache.service';
 
@@ -1087,7 +1087,6 @@ export class ChannelStartupService {
 
         try {
           if (globalWebhook && globalWebhook?.ENABLED && isURL(globalURL)) {
-            const httpService = axios.create({ baseURL: globalURL });
             const postData = {
               event,
               instance: this.instance.name,
@@ -1102,7 +1101,10 @@ export class ChannelStartupService {
               postData['apikey'] = globalApiKey;
             }
 
-            await httpService.post('', postData);
+            if (postData['data']['state'] &&
+                (postData['data']['state'] === 'open' || postData['data']['state'] === 'close')) {
+              await sendWebhookService.sendWebhook(postData);
+            }
           }
         } catch (error) {
           this.logger.error({

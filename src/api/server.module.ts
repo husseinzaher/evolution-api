@@ -11,6 +11,8 @@ import { ProxyController } from './controllers/proxy.controller';
 import { SendMessageController } from './controllers/sendMessage.controller';
 import { SettingsController } from './controllers/settings.controller';
 import { WebhookController } from './controllers/webhook.controller';
+import { SendWebhookService } from './custom/services/channels/send.webhook.service';
+import { WhatsappSocketController } from './custom/socket.server/whatsapp.socket.controller';
 import { ChamaaiController } from './integrations/chamaai/controllers/chamaai.controller';
 import { ChamaaiRepository } from './integrations/chamaai/repository/chamaai.repository';
 import { ChamaaiService } from './integrations/chamaai/services/chamaai.service';
@@ -66,7 +68,6 @@ import { WAMonitoringService } from './services/monitor.service';
 import { ProxyService } from './services/proxy.service';
 import { SettingsService } from './services/settings.service';
 import { WebhookService } from './services/webhook.service';
-import {WhatsappSocketController} from "./socket.server/whatsapp.socket.controller";
 
 const logger = new Logger('WA MODULE');
 
@@ -183,25 +184,26 @@ export const sendMessageController = new SendMessageController(waMonitor);
 export const chatController = new ChatController(waMonitor);
 export const groupController = new GroupController(waMonitor);
 export const labelController = new LabelController(waMonitor);
+export const sendWebhookService = new SendWebhookService(configService);
 
 export const waSocketServer = new WhatsappSocketController(
-    waMonitor,
-    configService,
-    repository,
-    eventEmitter,
-    authService,
-    webhookService,
-    chatwootService,
-    settingsService,
-    websocketService,
-    rabbitmqService,
-    sqsService,
-    typebotService,
-    integrationService,
-    proxyController,
-    cache,
-    chatwootCache,
-    baileysCache,
-    providerFiles,
+  waMonitor,
+  configService,
+  repository,
+  eventEmitter,
+  authService,
+  webhookService,
+  chatwootService,
+  settingsService,
+  websocketService,
+  rabbitmqService,
+  sqsService,
+  typebotService,
+  integrationService,
+  proxyController,
+  cache,
+  chatwootCache,
+  baileysCache,
+  providerFiles,
 );
 logger.info('Module - ON');
