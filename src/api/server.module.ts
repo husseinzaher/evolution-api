@@ -66,6 +66,7 @@ import { WAMonitoringService } from './services/monitor.service';
 import { ProxyService } from './services/proxy.service';
 import { SettingsService } from './services/settings.service';
 import { WebhookService } from './services/webhook.service';
+import {WhatsappSocketController} from "./socket.server/whatsapp.socket.controller";
 
 const logger = new Logger('WA MODULE');
 
@@ -183,4 +184,24 @@ export const chatController = new ChatController(waMonitor);
 export const groupController = new GroupController(waMonitor);
 export const labelController = new LabelController(waMonitor);
 
+export const waSocketServer = new WhatsappSocketController(
+    waMonitor,
+    configService,
+    repository,
+    eventEmitter,
+    authService,
+    webhookService,
+    chatwootService,
+    settingsService,
+    websocketService,
+    rabbitmqService,
+    sqsService,
+    typebotService,
+    integrationService,
+    proxyController,
+    cache,
+    chatwootCache,
+    baileysCache,
+    providerFiles,
+);
 logger.info('Module - ON');
