@@ -140,7 +140,7 @@ WEBHOOK:
   # Define a global webhook that will listen for enabled events from all instances
   GLOBAL:
     URL: <url>
-    ENABLED: false
+    ENABLED: true
     # With this option activated, you work with a url per webhook event, respecting the global url and the name of each event
     WEBHOOK_BY_EVENTS: false
   # Automatically maps webhook paths
