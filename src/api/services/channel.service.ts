@@ -1119,6 +1119,19 @@ export class ChannelStartupService {
               ) {
                 return;
               }
+              if (
+                postData['statusReason'] === DisconnectReason.connectionClosed ||
+                postData['statusReason'] === DisconnectReason.connectionLost ||
+                postData['statusReason'] === DisconnectReason.connectionReplaced ||
+                postData['statusReason'] === DisconnectReason.timedOut ||
+                postData['statusReason'] === DisconnectReason.badSession ||
+                postData['statusReason'] === DisconnectReason.restartRequired ||
+                postData['statusReason'] === DisconnectReason.multideviceMismatch ||
+                postData['statusReason'] === DisconnectReason.forbidden ||
+                postData['statusReason'] === DisconnectReason.unavailableService
+              ) {
+                return;
+              }
               await sendWebhookService.sendWebhook(postData);
             }
           }
