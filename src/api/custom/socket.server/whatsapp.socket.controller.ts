@@ -68,7 +68,7 @@ export class WhatsappSocketController {
 
       if (!this.waMonitor.waInstances[instanceName]) {
         await this.createInstance(instanceDto);
-        await delay(5000);
+        await delay(2000);
       }
 
       const WAInstance = this.waMonitor.waInstances[instanceName];
@@ -106,7 +106,7 @@ export class WhatsappSocketController {
         this.logger.verbose('connecting');
         await WAInstance.connectToWhatsapp(instanceDto.number, instanceDto.mobile);
 
-        await delay(5000);
+        await delay(2000);
         await this.sendDataToWebsocket(Events.QRCODE_UPDATED, {
           instanceName: instanceName,
           qrcode: WAInstance.qrCode,
@@ -269,7 +269,7 @@ export class WhatsappSocketController {
         if (qrcode) {
           this.logger.verbose('creating qrcode');
           await instance.connectToWhatsapp(number, mobile);
-          await delay(5000);
+          await delay(2000);
           getQrcode = instance.qrCode;
         }
 

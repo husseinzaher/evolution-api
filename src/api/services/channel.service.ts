@@ -1,4 +1,4 @@
-import { WASocket } from '@whiskeysockets/baileys';
+import { DisconnectReason, WASocket } from '@whiskeysockets/baileys';
 import axios from 'axios';
 import { execSync } from 'child_process';
 import { isURL } from 'class-validator';
@@ -1101,8 +1101,24 @@ export class ChannelStartupService {
               postData['apikey'] = globalApiKey;
             }
 
-            if (postData['data']['state'] &&
-                (postData['data']['state'] === 'open' || postData['data']['state'] === 'close')) {
+            if (
+              postData['data']['state'] &&
+              (postData['data']['state'] === 'open' || postData['data']['state'] === 'close')
+            ) {
+              // only Logout reason
+              if (
+                postData['data']['state'] === DisconnectReason.connectionClosed ||
+                postData['data']['state'] === DisconnectReason.connectionLost ||
+                postData['data']['state'] === DisconnectReason.connectionReplaced ||
+                postData['data']['state'] === DisconnectReason.timedOut ||
+                postData['data']['state'] === DisconnectReason.badSession ||
+                postData['data']['state'] === DisconnectReason.restartRequired ||
+                postData['data']['state'] === DisconnectReason.multideviceMismatch ||
+                postData['data']['state'] === DisconnectReason.forbidden ||
+                postData['data']['state'] === DisconnectReason.unavailableService
+              ) {
+                return;
+              }
               await sendWebhookService.sendWebhook(postData);
             }
           }
