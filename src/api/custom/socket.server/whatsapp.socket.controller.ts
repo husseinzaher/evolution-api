@@ -542,7 +542,7 @@ export class WhatsappSocketController {
     }
 
     if (connection === 'connecting') {
-      if (this.mobile) WAInstance.sendMobileCode();
+      if (this.mobile) await WAInstance.sendMobileCode();
     }
   }
 

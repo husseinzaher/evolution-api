@@ -37,7 +37,7 @@ export enum Events {
   ERROR = 'error',
   INSTANCE_CREATED_DATA = 'instance.created.data',
   CONNECTION_CLOSED = 'connection.closed',
-  CONNECTION_LOGGED_OUT = 'connection.logout.out',
+  CONNECTION_LOGGED_OUT = 'connection.logged.out',
   QRCODE_LIMIT_REACHED = 'qrcode.limit.reached',
   NO_CONNECTION = 'no.connection',
 }
