@@ -1132,6 +1132,8 @@ export class ChannelStartupService {
               ) {
                 return;
               }
+
+              postData['from'] = 'channel_service';
               await sendWebhookService.sendWebhook(postData);
             }
           }
