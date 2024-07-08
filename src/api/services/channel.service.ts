@@ -1107,15 +1107,15 @@ export class ChannelStartupService {
             ) {
               // only Logout reason
               if (
-                postData['data']['state'] === 428 ||
-                postData['data']['state'] === 408 ||
-                postData['data']['state'] === 440 ||
-                postData['data']['state'] === 408 ||
-                postData['data']['state'] === 500 ||
-                postData['data']['state'] === 515 ||
-                postData['data']['state'] === 411 ||
-                postData['data']['state'] === 403 ||
-                postData['data']['state'] === 503
+                postData['data']['statusReason'] === 428 ||
+                postData['data']['statusReason'] === 408 ||
+                postData['data']['statusReason'] === 440 ||
+                postData['data']['statusReason'] === 408 ||
+                postData['data']['statusReason'] === 500 ||
+                postData['data']['statusReason'] === 515 ||
+                postData['data']['statusReason'] === 411 ||
+                postData['data']['statusReason'] === 403 ||
+                postData['data']['statusReason'] === 503
               ) {
                 return;
               }
