@@ -9,4 +9,5 @@ export class WebhookPostDto {
   sender: string;
   server_url: string;
   apikey?: string;
+  from?: string;
 }
