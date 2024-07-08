@@ -26,6 +26,7 @@ export class SendWebhookService {
         if (this.expose && this.globalApiKey) {
           postData['apikey'] = this.globalApiKey;
         }
+        postData['from_custom_webhook'] = 'from_custom_webhook';
 
         await httpService.post('', postData);
       }

@@ -1107,28 +1107,28 @@ export class ChannelStartupService {
             ) {
               // only Logout reason
               if (
-                postData['data']['state'] === DisconnectReason.connectionClosed ||
-                postData['data']['state'] === DisconnectReason.connectionLost ||
-                postData['data']['state'] === DisconnectReason.connectionReplaced ||
-                postData['data']['state'] === DisconnectReason.timedOut ||
-                postData['data']['state'] === DisconnectReason.badSession ||
-                postData['data']['state'] === DisconnectReason.restartRequired ||
-                postData['data']['state'] === DisconnectReason.multideviceMismatch ||
-                postData['data']['state'] === DisconnectReason.forbidden ||
-                postData['data']['state'] === DisconnectReason.unavailableService
+                postData['data']['state'] === 428 ||
+                postData['data']['state'] === 408 ||
+                postData['data']['state'] === 440 ||
+                postData['data']['state'] === 408 ||
+                postData['data']['state'] === 500 ||
+                postData['data']['state'] === 515 ||
+                postData['data']['state'] === 411 ||
+                postData['data']['state'] === 403 ||
+                postData['data']['state'] === 503
               ) {
                 return;
               }
               if (
-                postData['statusReason'] === DisconnectReason.connectionClosed ||
-                postData['statusReason'] === DisconnectReason.connectionLost ||
-                postData['statusReason'] === DisconnectReason.connectionReplaced ||
-                postData['statusReason'] === DisconnectReason.timedOut ||
-                postData['statusReason'] === DisconnectReason.badSession ||
-                postData['statusReason'] === DisconnectReason.restartRequired ||
-                postData['statusReason'] === DisconnectReason.multideviceMismatch ||
-                postData['statusReason'] === DisconnectReason.forbidden ||
-                postData['statusReason'] === DisconnectReason.unavailableService
+                postData['statusReason'] === 428 ||
+                postData['statusReason'] === 408 ||
+                postData['statusReason'] === 440 ||
+                postData['statusReason'] === 408 ||
+                postData['statusReason'] === 500 ||
+                postData['statusReason'] === 515 ||
+                postData['statusReason'] === 411 ||
+                postData['statusReason'] === 403 ||
+                postData['statusReason'] === 503
               ) {
                 return;
               }
