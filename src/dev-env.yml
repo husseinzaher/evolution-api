@@ -233,4 +233,11 @@ AUTHENTICATION:
     EXPIRIN_IN: 0 # seconds - 3600s === 1h | zero (0) - never expires
     SECRET: L=0YWt]b2w[WF>#>:&E`
 
+# Remote sql config
+REMOTE_MYSQL:
+  DB_HOST: ''
+  DB_DATABASE: ''
+  DB_USERNAME: ''
+  DB_PASSWORD: ''
+
 LANGUAGE: "pt-BR" # pt-BR, en

@@ -55,6 +55,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.7",
+    "dotenv": "^16.4.5",
     "eventemitter2": "^6.4.9",
     "evolution-manager": "^0.4.13",
     "exiftool-vendored": "^22.0.0",

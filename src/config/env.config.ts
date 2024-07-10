@@ -191,8 +191,15 @@ export type CacheConfLocal = {
   ENABLED: boolean;
   TTL: number;
 };
+
 export type SslConf = { PRIVKEY: string; FULLCHAIN: string };
 export type Webhook = { GLOBAL?: GlobalWebhook; EVENTS: EventsWebhook };
+export type REMOTE_MYSQL = {
+  DB_HOST: string;
+  DB_DATABASE: string;
+  DB_USERNAME: string;
+  DB_PASSWORD: string;
+};
 export type ConfigSessionPhone = { CLIENT: string; NAME: string; VERSION: string };
 export type QrCode = { LIMIT: number; COLOR: string };
 export type Typebot = { API_VERSION: string; KEEP_OPEN: boolean };
@@ -236,6 +243,7 @@ export interface Env {
   CACHE: CacheConf;
   AUTHENTICATION: Auth;
   PRODUCTION?: Production;
+  REMOTE_MYSQL: REMOTE_MYSQL;
 }
 
 export type Key = keyof Env;
@@ -481,6 +489,12 @@ export class ConfigService {
             : 3600,
           SECRET: process.env.AUTHENTICATION_JWT_SECRET || 'L=0YWt]b2w[WF>#>:&E`',
         },
+      },
+      REMOTE_MYSQL: {
+        DB_HOST: process.env.DB_HOST,
+        DB_DATABASE: process.env.DB_DATABASE,
+        DB_USERNAME: process.env.DB_USERNAME,
+        DB_PASSWORD: process.env.DB_PASSWORD,
       },
     };
   }
