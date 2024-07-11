@@ -13,30 +13,26 @@ let io: SocketIO;
 const cors = configService.get<Cors>('CORS').ORIGIN;
 
 export const initIO = (httpServer: Server) => {
-  if (configService.get<Websocket>('WEBSOCKET')?.ENABLED) {
-    io = new SocketIO(httpServer, {
-      cors: {
-        origin: cors,
-      },
+  io = new SocketIO(httpServer, {
+    cors: {
+      origin: cors,
+    },
+  });
+
+  io.on('connection', async (socket) => {
+    const room = socket.handshake.query.instanceName;
+    socket.join(room);
+
+    socket.on('StartConnection', (instance: InstanceDto) => {
+      waSocketServer.startConnection(instance, io);
     });
-
-    io.on('connection', async (socket) => {
-      const room = socket.handshake.query.instanceName;
-      socket.join(room);
-
-      socket.on('StartConnection', (instance: InstanceDto) => {
-        waSocketServer.startConnection(instance, io);
-      });
-      socket.on('logout', (instance: InstanceDto) => {
-        waSocketServer.logout(instance, io);
-      });
-
+    socket.on('logout', (instance: InstanceDto) => {
+      waSocketServer.logout(instance, io);
     });
+  });
 
-    logger.info('Socket.io initialized');
-    return io;
-  }
-  return null;
+  logger.info('Socket.io initialized');
+  return io;
 };
 
 export const getIO = (): SocketIO => {
