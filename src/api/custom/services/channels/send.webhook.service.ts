@@ -20,9 +20,6 @@ export class SendWebhookService {
 
   public async sendWebhook(postData: WebhookPostDto) {
     try {
-      if (postData['data']['state']) {
-        setInstanceStatus(postData['instance'], postData['data']['state']);
-      }
       if (this.globalWebhook && this.globalWebhook?.ENABLED && isURL(this.globalURL)) {
         // const httpService = axios.create({ baseURL: this.globalURL });
 
