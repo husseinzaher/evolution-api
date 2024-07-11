@@ -520,15 +520,15 @@ export class BaileysStartupService extends ChannelStartupService {
   public async connectToWhatsapp(number?: string, mobile?: boolean): Promise<WASocket> {
     this.logger.verbose('Connecting to whatsapp');
     try {
-      this.loadWebhook();
-      this.loadChatwoot();
-      this.loadSettings();
-      this.loadWebsocket();
-      this.loadRabbitmq();
-      this.loadSqs();
-      this.loadTypebot();
-      this.loadProxy();
-      this.loadChamaai();
+      // this.loadWebhook();
+      // this.loadChatwoot();
+      await this.loadSettings();
+      // this.loadWebsocket();
+      // this.loadRabbitmq();
+      // this.loadSqs();
+      // this.loadTypebot();
+      // this.loadProxy();
+      // this.loadChamaai();
 
       this.instance.authState = await this.defineAuthState();
 
