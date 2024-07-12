@@ -2041,7 +2041,7 @@ export class BaileysStartupService extends ChannelStartupService {
       this.logger.log(messageRaw);
 
       this.logger.verbose('Sending data to webhook in event SEND_MESSAGE');
-      this.sendDataWebhook(Events.SEND_MESSAGE, messageRaw);
+      await this.sendDataWebhook(Events.SEND_MESSAGE, messageRaw);
 
       if (this.localChatwoot.enabled && !isChatwoot) {
         this.chatwootService.eventWhatsapp(Events.SEND_MESSAGE, { instanceName: this.instance.name }, messageRaw);

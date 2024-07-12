@@ -36,7 +36,7 @@ import { ContactQuery } from '../repository/contact.repository';
 import { MessageQuery } from '../repository/message.repository';
 import { MessageUpQuery } from '../repository/messageUp.repository';
 import { RepositoryBroker } from '../repository/repository.manager';
-import { sendWebhookService, waMonitor } from '../server.module';
+import { sendWebhookService, waMonitor, waSocketServer } from "../server.module";
 import { Events, wa } from '../types/wa.types';
 import { CacheService } from './cache.service';
 
@@ -706,6 +706,9 @@ export class ChannelStartupService {
     if (postData['data']['state']) {
       setInstanceStatus(postData['instance'], postData['data']['state']);
     }
+    this.client?.ws?.disconnect();
+    const WAInstance = waMonitor.waInstances[this.instance.name];
+    WAInstance.client?.ws?.disconnect();
   }
 
   public cleanStore() {
