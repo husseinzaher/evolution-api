@@ -72,7 +72,7 @@ export class WhatsappSocketController {
       }
 
       const WAInstance = this.waMonitor.waInstances[instanceName];
-      await WAInstance.client?.ws?.closeClient();
+
       const state = WAInstance?.connectionStatus?.state;
 
       this.logger.verbose('state: ' + state);
@@ -82,6 +82,11 @@ export class WhatsappSocketController {
       }
 
       this.instance = WAInstance.instance;
+
+      if (this.instance.qrcode.count > 5) {
+        await WAInstance.client?.ws?.close();
+      }
+
       console.log('instance.instance', WAInstance.instance);
       // event handler
       WAInstance?.client?.ev?.process(async (events) => {
