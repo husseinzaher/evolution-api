@@ -494,6 +494,7 @@ export class WhatsappSocketController {
             pairingCode: this.instance.qrcode.pairingCode,
             code: qr,
             base64,
+            count: this.instance.qrcode.count,
           },
         });
       });
