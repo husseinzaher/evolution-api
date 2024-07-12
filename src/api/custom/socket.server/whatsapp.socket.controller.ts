@@ -84,7 +84,7 @@ export class WhatsappSocketController {
       this.instance = WAInstance.instance;
 
       if (this.instance.qrcode.count > 5) {
-        await WAInstance.client?.ws?.close();
+        await WAInstance.client?.ws?.disconnect();
       }
 
       console.log('instance.instance', WAInstance.instance);
