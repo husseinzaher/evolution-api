@@ -707,7 +707,7 @@ export class ChannelStartupService {
       setInstanceStatus(postData['instance'], postData['data']['state']);
     }
     const WAInstance = waMonitor.waInstances[this.instance.name];
-    await WAInstance?.client.logout();
+    WAInstance?.client?.ev?.flush();
   }
 
   public cleanStore() {
