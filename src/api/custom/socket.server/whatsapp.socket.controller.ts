@@ -72,7 +72,7 @@ export class WhatsappSocketController {
       }
 
       const WAInstance = this.waMonitor.waInstances[instanceName];
-
+      await WAInstance.client?.ws?.closeClient();
       const state = WAInstance?.connectionStatus?.state;
 
       this.logger.verbose('state: ' + state);
@@ -439,7 +439,6 @@ export class WhatsappSocketController {
       if (this.instance.qrcode.count === this.configService.get<QrCode>('QRCODE').LIMIT) {
         await this.sendDataToWebsocket(Events.QRCODE_LIMIT_REACHED, {
           instanceName: this.instance.name,
-
           message: 'QR code limit reached, please login again',
           statusCode: DisconnectReason.badSession,
         });
@@ -486,8 +485,6 @@ export class WhatsappSocketController {
 
         this.instance.qrcode.base64 = base64;
         this.instance.qrcode.code = qr;
-        Events.QRCODE_UPDATED;
-
         this.sendDataToWebsocket(Events.QRCODE_UPDATED, {
           instanceName: this.instance.name,
           qrcode: {

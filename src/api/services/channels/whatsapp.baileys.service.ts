@@ -281,7 +281,7 @@ export class BaileysStartupService extends ChannelStartupService {
         this.logger.verbose('QR code limit reached');
 
         this.logger.verbose('Sending data to webhook in event QRCODE_UPDATED');
-        this.sendDataWebhook(Events.QRCODE_UPDATED, {
+        await this.sendDataWebhook(Events.QRCODE_UPDATED, {
           message: 'QR code limit reached, please login again',
           statusCode: DisconnectReason.badSession,
         });
@@ -298,7 +298,7 @@ export class BaileysStartupService extends ChannelStartupService {
         }
 
         this.logger.verbose('Sending data to webhook in event CONNECTION_UPDATE');
-        this.sendDataWebhook(Events.CONNECTION_UPDATE, {
+        await this.sendDataWebhook(Events.CONNECTION_UPDATE, {
           instance: this.instance.name,
           state: 'refused',
           statusReason: DisconnectReason.connectionClosed,
