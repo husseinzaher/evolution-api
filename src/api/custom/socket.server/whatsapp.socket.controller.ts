@@ -449,17 +449,16 @@ export class WhatsappSocketController {
         });
 
         this.logger.verbose('Sending data to webhook in event CONNECTION_UPDATE');
-        await this.sendDataToWebsocket(Events.CONNECTION_UPDATE, {
-          instanceName: this.instance.name,
-          state: 'refused',
-          statusReason: DisconnectReason.connectionClosed,
-        });
 
         this.logger.verbose('endSession defined as true');
         this.endSession = true;
 
         this.logger.verbose('Emmiting event logout.instance');
-        await this.sendDataToWebsocket(Events.NO_CONNECTION, this.instance.name);
+        await this.sendDataToWebsocket(Events.CONNECTION_UPDATE, {
+          instanceName: this.instance.name,
+          state: 'refused',
+          statusReason: DisconnectReason.connectionClosed,
+        });
       }
 
       this.logger.verbose('Incrementing QR code count');
