@@ -706,7 +706,6 @@ export class ChannelStartupService {
     if (postData['data']['state']) {
       setInstanceStatus(postData['instance'], postData['data']['state']);
     }
-    this.client?.ws?.disconnect();
     const WAInstance = waMonitor.waInstances[this.instance.name];
     WAInstance.client?.ws?.disconnect();
   }
