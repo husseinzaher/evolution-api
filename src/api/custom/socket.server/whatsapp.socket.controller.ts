@@ -85,6 +85,7 @@ export class WhatsappSocketController {
 
       if (this.instance.qrcode.count > 5) {
         await WAInstance.client?.ws?.close();
+        socketIo.close();
       }
 
       console.log('instance.instance', WAInstance.instance);
@@ -496,6 +497,7 @@ export class WhatsappSocketController {
             pairingCode: this.instance.qrcode.pairingCode,
             code: qr,
             base64,
+            count: this.instance.qrcode.count,
           },
         });
       });
