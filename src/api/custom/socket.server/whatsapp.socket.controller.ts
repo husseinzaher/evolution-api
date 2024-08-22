@@ -1,5 +1,5 @@
 import { Boom } from '@hapi/boom';
-import { ConnectionState, delay, DisconnectReason } from '@whiskeysockets/baileys';
+import { ConnectionState, delay, DisconnectReason } from 'baileys';
 import { isURL } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
 import qrcode, { QRCodeToDataURLOptions } from 'qrcode';
@@ -82,6 +82,11 @@ export class WhatsappSocketController {
       }
 
       this.instance = WAInstance.instance;
+
+      if (this.instance.qrcode.count > 5) {
+        await WAInstance.logoutInstance();
+      }
+
       console.log('instance.instance', WAInstance.instance);
       // event handler
       WAInstance?.client?.ev?.process(async (events) => {
@@ -439,23 +444,21 @@ export class WhatsappSocketController {
       if (this.instance.qrcode.count === this.configService.get<QrCode>('QRCODE').LIMIT) {
         await this.sendDataToWebsocket(Events.QRCODE_LIMIT_REACHED, {
           instanceName: this.instance.name,
-
           message: 'QR code limit reached, please login again',
           statusCode: DisconnectReason.badSession,
         });
 
         this.logger.verbose('Sending data to webhook in event CONNECTION_UPDATE');
-        await this.sendDataToWebsocket(Events.CONNECTION_UPDATE, {
-          instanceName: this.instance.name,
-          state: 'refused',
-          statusReason: DisconnectReason.connectionClosed,
-        });
 
         this.logger.verbose('endSession defined as true');
         this.endSession = true;
 
         this.logger.verbose('Emmiting event logout.instance');
-        await this.sendDataToWebsocket(Events.NO_CONNECTION, this.instance.name);
+        await this.sendDataToWebsocket(Events.CONNECTION_UPDATE, {
+          instanceName: this.instance.name,
+          state: 'refused',
+          statusReason: DisconnectReason.connectionClosed,
+        });
       }
 
       this.logger.verbose('Incrementing QR code count');
@@ -486,8 +489,6 @@ export class WhatsappSocketController {
 
         this.instance.qrcode.base64 = base64;
         this.instance.qrcode.code = qr;
-        Events.QRCODE_UPDATED;
-
         this.sendDataToWebsocket(Events.QRCODE_UPDATED, {
           instanceName: this.instance.name,
           qrcode: {
