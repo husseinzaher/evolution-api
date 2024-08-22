@@ -1,5 +1,5 @@
 import { Boom } from '@hapi/boom';
-import { ConnectionState, delay, DisconnectReason } from '@whiskeysockets/baileys';
+import { ConnectionState, delay, DisconnectReason } from 'baileys';
 import { isURL } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
 import qrcode, { QRCodeToDataURLOptions } from 'qrcode';

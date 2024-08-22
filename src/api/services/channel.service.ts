@@ -1,5 +1,5 @@
-import { DisconnectReason, WASocket } from '@whiskeysockets/baileys';
 import axios from 'axios';
+import { WASocket } from 'baileys';
 import { execSync } from 'child_process';
 import { isURL } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
@@ -36,7 +36,7 @@ import { ContactQuery } from '../repository/contact.repository';
 import { MessageQuery } from '../repository/message.repository';
 import { MessageUpQuery } from '../repository/messageUp.repository';
 import { RepositoryBroker } from '../repository/repository.manager';
-import { sendWebhookService, waMonitor, waSocketServer } from "../server.module";
+import { waMonitor } from '../server.module';
 import { Events, wa } from '../types/wa.types';
 import { CacheService } from './cache.service';
 
@@ -688,7 +688,17 @@ export class ChannelStartupService {
   };
 
   public async sendDataWebhook<T = any>(event: Events, data: T, local = true) {
+    const webhookGlobal = this.configService.get<Webhook>('WEBHOOK');
+    const webhookLocal = this.localWebhook.events;
+    const websocketLocal = this.localWebsocket.events;
+    const rabbitmqLocal = this.localRabbitmq.events;
+    const sqsLocal = this.localSqs.events;
     const serverUrl = this.configService.get<HttpServer>('SERVER').URL;
+    const rabbitmqEnabled = this.configService.get<Rabbitmq>('RABBITMQ').ENABLED;
+    const rabbitmqGlobal = this.configService.get<Rabbitmq>('RABBITMQ').GLOBAL_ENABLED;
+    const rabbitmqEvents = this.configService.get<Rabbitmq>('RABBITMQ').EVENTS;
+    const we = event.replace(/[.-]/gm, '_').toUpperCase();
+    const transformedWe = we.replace(/_/gm, '-').toLowerCase();
     const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
     const localISOTime = new Date(Date.now() - tzoffset).toISOString();
     const now = localISOTime;
