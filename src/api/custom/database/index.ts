@@ -1,9 +1,12 @@
 import mysql2 from 'mysql2';
 
 import { configService, QrCode, REMOTE_MYSQL } from "../../../config/env.config";
-import { waMonitor } from '../../server.module';
+import { waMonitor } from "../../server.module";
 import { Events } from "../../types/wa.types";
-import { DisconnectReason } from "baileys";
+import { delay, DisconnectReason } from "baileys";
+import NodeCache from 'node-cache';
+
+const myCache = new NodeCache();
 
 const dbConfig = configService.get<REMOTE_MYSQL>('REMOTE_MYSQL');
 export const db = mysql2.createPool({
@@ -17,32 +20,40 @@ export const db = mysql2.createPool({
   queueLimit: 0,
 });
 
-export const setInstanceStatus = (instanceName: string, status: string) => {
+export const setInstanceStatus = async (instanceName: string, status: string) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
 
     let state = 'disconnected';
     let phone = null;
+
     if (status === 'open') {
       const wuid = WAInstance.client.user.id.replace(/:\d+/, '');
       const formattedWuid = wuid.split('@')[0];
       state = 'connected';
       phone = '+' + formattedWuid;
     }
-    const disconnectedCount = Number(WAInstance.cache.get(`disconnected_count_${instanceName}`));
 
-    if (!WAInstance.cache.has(`disconnected_count_${instanceName}`)) {
-      WAInstance.cache.set(`disconnected_count_${instanceName}`, 1);
+    const cacheKey = `disconnected_count_${instanceName}`;
+
+    if (!myCache.get(cacheKey)) {
+      myCache.set(cacheKey, 1);
     }
+    const disconnectedCount = Number(myCache.get(cacheKey));
 
-    WAInstance.cache.set(`disconnected_count_${instanceName}`, disconnectedCount + 1);
-
-    if (disconnectedCount > 2) {
+    myCache.set(cacheKey, disconnectedCount + 1);
+    console.log('disconnectedCount: ', disconnectedCount);
+    if (disconnectedCount > 3) {
       console.log('disconnect limit reached');
-      WAInstance.client.ws.closeClient();
+
+      // await WAInstance.cleanStore();
+      await delay(3000);
+    } else {
+      // await WAInstance.reloadConnection();
     }
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
+
     db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
     if (phone) {
       db.query(`UPDATE whatsapp_sessions SET phone = '${phone}' WHERE session_name = '${instanceName}' `);

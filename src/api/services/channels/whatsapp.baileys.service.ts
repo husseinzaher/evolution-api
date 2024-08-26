@@ -734,8 +734,11 @@ export class BaileysStartupService extends ChannelStartupService {
   }
 
   public async reloadConnection(): Promise<WASocket> {
+
+    throw new InternalServerErrorException("not allow to reload connection");
+
     try {
-      return await this.createClient(this.phoneNumber, this.mobile);
+      // return await this.createClient(this.phoneNumber, this.mobile);
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(error?.toString());
