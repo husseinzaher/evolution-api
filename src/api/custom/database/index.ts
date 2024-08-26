@@ -3,7 +3,7 @@ import mysql2 from 'mysql2';
 import { configService, QrCode, REMOTE_MYSQL } from "../../../config/env.config";
 import { waMonitor } from "../../server.module";
 import { Events } from "../../types/wa.types";
-import { DisconnectReason } from "baileys";
+import { delay, DisconnectReason } from "baileys";
 import NodeCache from 'node-cache';
 
 const myCache = new NodeCache();
@@ -20,12 +20,13 @@ export const db = mysql2.createPool({
   queueLimit: 0,
 });
 
-export const setInstanceStatus = (instanceName: string, status: string) => {
+export const setInstanceStatus = async (instanceName: string, status: string) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
 
     let state = 'disconnected';
     let phone = null;
+
     if (status === 'open') {
       const wuid = WAInstance.client.user.id.replace(/:\d+/, '');
       const formattedWuid = wuid.split('@')[0];
@@ -44,12 +45,17 @@ export const setInstanceStatus = (instanceName: string, status: string) => {
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 2) {
       console.log('disconnect limit reached');
+      WAInstance.clearCacheChatwoot();
+      await WAInstance.reloadConnection();
+      await delay(2000);
       WAInstance.client.logout;
     }
 
     WAInstance.client.logout;
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
+    await WAInstance.reloadConnection();
+
     db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
     if (phone) {
       db.query(`UPDATE whatsapp_sessions SET phone = '${phone}' WHERE session_name = '${instanceName}' `);
