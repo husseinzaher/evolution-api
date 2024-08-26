@@ -43,17 +43,14 @@ export const setInstanceStatus = async (instanceName: string, status: string) =>
 
     myCache.set(cacheKey, disconnectedCount + 1);
     console.log('disconnectedCount: ', disconnectedCount);
-    if (disconnectedCount > 1) {
+    if (disconnectedCount > 3) {
       console.log('disconnect limit reached');
-
-      await WAInstance.cleanStore();
-      await delay(2000);
-      WAInstance.client.logout;
+      WAInstance.client.end;
+      // await WAInstance.cleanStore();
+      await delay(10000);
     } else {
       // await WAInstance.reloadConnection();
     }
-
-    WAInstance.client.logout;
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
 
