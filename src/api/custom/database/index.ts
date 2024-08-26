@@ -45,9 +45,10 @@ export const setInstanceStatus = async (instanceName: string, status: string) =>
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 3) {
       console.log('disconnect limit reached');
-      WAInstance.client.ev.removeAllListeners();
+      WAInstance.client.ev.flush();
+      await WAInstance.connectToWhatsapp();
       // await WAInstance.cleanStore();
-      await delay(10000);
+      await delay(3000);
     } else {
       // await WAInstance.reloadConnection();
     }
