@@ -44,8 +44,10 @@ export const setInstanceStatus = (instanceName: string, status: string) => {
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 2) {
       console.log('disconnect limit reached');
-      WAInstance.client.ws.closeClient();
+      WAInstance.client.logout;
     }
+
+    WAInstance.client.logout;
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
     db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
