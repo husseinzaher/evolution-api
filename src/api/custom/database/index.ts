@@ -36,7 +36,7 @@ export const setInstanceStatus = (instanceName: string, status: string) => {
     }
 
     WAInstance.cache.set(`disconnected_count_${instanceName}`, disconnectedCount + 1);
-
+    console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 2) {
       console.log('disconnect limit reached');
       WAInstance.client.ws.closeClient();
