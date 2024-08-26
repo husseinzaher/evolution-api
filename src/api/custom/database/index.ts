@@ -45,7 +45,7 @@ export const setInstanceStatus = async (instanceName: string, status: string) =>
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 3) {
       console.log('disconnect limit reached');
-      WAInstance.client.ev.off();
+
       // await WAInstance.cleanStore();
       await delay(3000);
     } else {
