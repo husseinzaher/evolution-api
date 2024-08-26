@@ -43,18 +43,19 @@ export const setInstanceStatus = async (instanceName: string, status: string) =>
 
     myCache.set(cacheKey, disconnectedCount + 1);
     console.log('disconnectedCount: ', disconnectedCount);
-    if (disconnectedCount > 2) {
+    if (disconnectedCount > 1) {
       console.log('disconnect limit reached');
-      WAInstance.clearCacheChatwoot();
-      await WAInstance.reloadConnection();
+
+      await WAInstance.cleanStore();
       await delay(2000);
       WAInstance.client.logout;
+    } else {
+      // await WAInstance.reloadConnection();
     }
 
     WAInstance.client.logout;
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
-    await WAInstance.reloadConnection();
 
     db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
     if (phone) {
