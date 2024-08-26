@@ -1,9 +1,12 @@
 import mysql2 from 'mysql2';
 
 import { configService, QrCode, REMOTE_MYSQL } from "../../../config/env.config";
-import { waMonitor } from '../../server.module';
+import { waMonitor } from "../../server.module";
 import { Events } from "../../types/wa.types";
 import { DisconnectReason } from "baileys";
+import NodeCache from 'node-cache';
+
+const myCache = new NodeCache();
 
 const dbConfig = configService.get<REMOTE_MYSQL>('REMOTE_MYSQL');
 export const db = mysql2.createPool({
@@ -29,13 +32,15 @@ export const setInstanceStatus = (instanceName: string, status: string) => {
       state = 'connected';
       phone = '+' + formattedWuid;
     }
-    const disconnectedCount = Number(WAInstance.cache.get(`disconnected_count_${instanceName}`));
 
-    if (!WAInstance.cache.has(`disconnected_count_${instanceName}`)) {
-      WAInstance.cache.set(`disconnected_count_${instanceName}`, 1);
+    const cacheKey = `disconnected_count_${instanceName}`;
+
+    if (!myCache.get(cacheKey)) {
+      myCache.set(cacheKey, 1);
     }
+    const disconnectedCount = Number(myCache.get(cacheKey));
 
-    WAInstance.cache.set(`disconnected_count_${instanceName}`, disconnectedCount + 1);
+    myCache.set(cacheKey, disconnectedCount + 1);
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 2) {
       console.log('disconnect limit reached');
