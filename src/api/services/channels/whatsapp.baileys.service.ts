@@ -150,8 +150,8 @@ export class BaileysStartupService extends ChannelStartupService {
     this.cleanStore();
     this.instance.qrcode = { count: 0 };
     this.mobile = false;
-    this.recoveringMessages();
-    this.forceUpdateGroupMetadataCache();
+    // this.recoveringMessages();
+    // this.forceUpdateGroupMetadataCache();
 
     this.authStateProvider = new AuthStateProvider(this.providerFiles);
   }
@@ -734,11 +734,8 @@ export class BaileysStartupService extends ChannelStartupService {
   }
 
   public async reloadConnection(): Promise<WASocket> {
-
-    throw new InternalServerErrorException("not allow to reload connection");
-
     try {
-      // return await this.createClient(this.phoneNumber, this.mobile);
+      return await this.createClient(this.phoneNumber, this.mobile);
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(error?.toString());
