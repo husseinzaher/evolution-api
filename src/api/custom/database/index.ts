@@ -1,12 +1,11 @@
+import { DisconnectReason } from 'baileys';
 import mysql2 from 'mysql2';
 
-import { configService, QrCode, REMOTE_MYSQL } from "../../../config/env.config";
-import { waMonitor } from "../../server.module";
-import { Events } from "../../types/wa.types";
-import { delay, DisconnectReason } from "baileys";
-import NodeCache from 'node-cache';
+import { configService, REMOTE_MYSQL } from '../../../config/env.config';
+import { waMonitor } from '../../server.module';
 
-const myCache = new NodeCache();
+// import NodeCache from 'node-cache';
+// const myCache = new NodeCache();
 
 const dbConfig = configService.get<REMOTE_MYSQL>('REMOTE_MYSQL');
 export const db = mysql2.createPool({
@@ -20,44 +19,46 @@ export const db = mysql2.createPool({
   queueLimit: 0,
 });
 
-export const setInstanceStatus = async (instanceName: string, status: string) => {
+export const setInstanceStatus = async (instanceName: string, status: string, statusReason: string) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
-
+    console.log('WAInstance', WAInstance.stateConnection);
     let state = 'disconnected';
     let phone = null;
 
-    if (status === 'open') {
+    if (status === 'open' && statusReason === '200') {
       const wuid = WAInstance.client.user.id.replace(/:\d+/, '');
       const formattedWuid = wuid.split('@')[0];
       state = 'connected';
       phone = '+' + formattedWuid;
     }
 
+    /*
     const cacheKey = `disconnected_count_${instanceName}`;
 
     if (!myCache.get(cacheKey)) {
       myCache.set(cacheKey, 1);
     }
     const disconnectedCount = Number(myCache.get(cacheKey));
-
     myCache.set(cacheKey, disconnectedCount + 1);
     console.log('disconnectedCount: ', disconnectedCount);
     if (disconnectedCount > 3) {
       console.log('disconnect limit reached');
-
-      // await WAInstance.cleanStore();
       await delay(3000);
     } else {
       // await WAInstance.reloadConnection();
     }
+    */
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
 
-    db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
-    if (phone) {
-      db.query(`UPDATE whatsapp_sessions SET phone = '${phone}' WHERE session_name = '${instanceName}' `);
+    if (statusReason === DisconnectReason.loggedOut.toString() || statusReason === '200') {
+      db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
+      if (phone) {
+        db.query(`UPDATE whatsapp_sessions SET phone = '${phone}' WHERE session_name = '${instanceName}' `);
+      }
     }
+
     return true;
   } catch (error) {
     return false;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { WASocket } from 'baileys';
+import { DisconnectReason, WASocket } from "baileys";
 import { execSync } from 'child_process';
 import { isURL } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
@@ -688,21 +688,10 @@ export class ChannelStartupService {
   };
 
   public async sendDataWebhook<T = any>(event: Events, data: T, local = true) {
-    const webhookGlobal = this.configService.get<Webhook>('WEBHOOK');
-    const webhookLocal = this.localWebhook.events;
-    const websocketLocal = this.localWebsocket.events;
-    const rabbitmqLocal = this.localRabbitmq.events;
-    const sqsLocal = this.localSqs.events;
     const serverUrl = this.configService.get<HttpServer>('SERVER').URL;
-    const rabbitmqEnabled = this.configService.get<Rabbitmq>('RABBITMQ').ENABLED;
-    const rabbitmqGlobal = this.configService.get<Rabbitmq>('RABBITMQ').GLOBAL_ENABLED;
-    const rabbitmqEvents = this.configService.get<Rabbitmq>('RABBITMQ').EVENTS;
-    const we = event.replace(/[.-]/gm, '_').toUpperCase();
-    const transformedWe = we.replace(/_/gm, '-').toLowerCase();
     const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
     const localISOTime = new Date(Date.now() - tzoffset).toISOString();
     const now = localISOTime;
-
     const postData = {
       event,
       instance: this.instance.name,
@@ -713,11 +702,9 @@ export class ChannelStartupService {
       server_url: serverUrl,
     };
 
-    if (postData['data']['state']) {
-      setInstanceStatus(postData['instance'], postData['data']['state']);
+    if (postData['data']['statusReason'] === '200' || postData['data']['statusReason'] === '401') {
+      await setInstanceStatus(postData['instance'], postData['data']['state'], postData['data']['statusReason']);
     }
-    const WAInstance = waMonitor.waInstances[this.instance.name];
-    WAInstance?.client?.ev?.flush();
   }
 
   public cleanStore() {

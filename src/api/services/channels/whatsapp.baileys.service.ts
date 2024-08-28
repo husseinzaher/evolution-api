@@ -394,7 +394,7 @@ export class BaileysStartupService extends ChannelStartupService {
       const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
       if (shouldReconnect) {
         this.logger.verbose('Reconnecting to whatsapp');
-        await this.connectToWhatsapp();
+        // await this.connectToWhatsapp();
       } else {
         this.logger.verbose('Do not reconnect to whatsapp');
         this.logger.verbose('Sending data to webhook in event STATUS_INSTANCE');
