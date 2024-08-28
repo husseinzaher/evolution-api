@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DisconnectReason, WASocket } from "baileys";
+import { DisconnectReason, WASocket } from 'baileys';
 import { execSync } from 'child_process';
 import { isURL } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
@@ -702,7 +702,7 @@ export class ChannelStartupService {
       server_url: serverUrl,
     };
 
-    if (postData['data']['statusReason'] === '200' || postData['data']['statusReason'] === '401') {
+    if (postData['data']['statusReason'] == 200 || postData['data']['statusReason'] == 401) {
       await setInstanceStatus(postData['instance'], postData['data']['state'], postData['data']['statusReason']);
     }
   }
