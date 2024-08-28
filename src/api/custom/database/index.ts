@@ -19,14 +19,14 @@ export const db = mysql2.createPool({
   queueLimit: 0,
 });
 
-export const setInstanceStatus = async (instanceName: string, status: string, statusReason: string) => {
+export const setInstanceStatus = async (instanceName: string, status: string, statusReason: number) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
     console.log('WAInstance', WAInstance.stateConnection);
     let state = 'disconnected';
     let phone = null;
 
-    if (status === 'open' && statusReason === '200') {
+    if (status === 'open' && statusReason === 200) {
       const wuid = WAInstance.client.user.id.replace(/:\d+/, '');
       const formattedWuid = wuid.split('@')[0];
       state = 'connected';
@@ -52,7 +52,7 @@ export const setInstanceStatus = async (instanceName: string, status: string, st
 
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
 
-    if (statusReason === DisconnectReason.loggedOut.toString() || statusReason === '200') {
+    if (statusReason === DisconnectReason.loggedOut || statusReason === 200) {
       db.query(`UPDATE whatsapp_sessions SET status = '${state}' WHERE session_name = '${instanceName}'`);
       if (phone) {
         db.query(`UPDATE whatsapp_sessions SET phone = '${phone}' WHERE session_name = '${instanceName}' `);
