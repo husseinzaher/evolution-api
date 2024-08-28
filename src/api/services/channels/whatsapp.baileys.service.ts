@@ -391,10 +391,11 @@ export class BaileysStartupService extends ChannelStartupService {
 
     if (connection === 'close') {
       this.logger.verbose('Connection closed');
-      const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+      const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut &&
+        (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.connectionReplaced;
       if (shouldReconnect) {
         this.logger.verbose('Reconnecting to whatsapp');
-        // await this.connectToWhatsapp();
+        await this.connectToWhatsapp();
       } else {
         this.logger.verbose('Do not reconnect to whatsapp');
         this.logger.verbose('Sending data to webhook in event STATUS_INSTANCE');
