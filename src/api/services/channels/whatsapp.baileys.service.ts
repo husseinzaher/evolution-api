@@ -391,7 +391,8 @@ export class BaileysStartupService extends ChannelStartupService {
 
     if (connection === 'close') {
       this.logger.verbose('Connection closed');
-      const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut &&
+      const shouldReconnect =
+        (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut &&
         (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.connectionReplaced;
       if (shouldReconnect) {
         this.logger.verbose('Reconnecting to whatsapp');
@@ -3469,6 +3470,7 @@ export class BaileysStartupService extends ChannelStartupService {
       throw new BadRequestException('Unable to leave the group', error.toString());
     }
   }
+
   public async templateMessage() {
     throw new Error('Method not available in the Baileys service');
   }
