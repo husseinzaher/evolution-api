@@ -22,7 +22,6 @@ export const db = mysql2.createPool({
 export const setInstanceStatus = async (instanceName: string, status: string, statusReason: number) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
-    console.log('WAInstance', WAInstance.instance);
     console.log('WAInstance status', WAInstance.stateConnection);
     let state = 'disconnected';
     let phone = null;
