@@ -52,24 +52,24 @@ DEL_TEMP_INSTANCES: true # Delete instances with status closed on start
 # Seesion Files Providers
 # Provider responsible for managing credentials files and WhatsApp sessions.
 PROVIDER:
-  ENABLED: true
+  ENABLED: false
   HOST: 127.0.0.1
   PORT: 5656
   PREFIX: evolution
 
 # Temporary data storage
 STORE:
-  MESSAGES: true
-  MESSAGE_UP: true
-  CONTACTS: true
-  CHATS: true
+  MESSAGES: false
+  MESSAGE_UP: false
+  CONTACTS: false
+  CHATS: false
 
 CLEAN_STORE:
   CLEANING_INTERVAL: 7200 # 7200 seconds === 2h
-  MESSAGES: true
-  MESSAGE_UP: true
-  CONTACTS: true
-  CHATS: true
+  MESSAGES: false
+  MESSAGE_UP: false
+  CONTACTS: false
+  CHATS: false
 
 # Permanent data storage
 DATABASE:

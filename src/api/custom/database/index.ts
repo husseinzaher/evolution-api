@@ -22,58 +22,60 @@ export const db = mysql2.createPool({
 export const setInstanceStatus = async (instanceName: string, status: string, statusReason: number) => {
   try {
     const WAInstance = waMonitor.waInstances[instanceName];
-    console.log('WAInstance status', WAInstance.stateConnection);
     let state = 'disconnected';
     let phone = null;
+    let profilePictureUrl = '';
 
     if (status === 'open' && statusReason === 200) {
       const wuid = WAInstance.client.user.id.replace(/:\d+/, '');
       const formattedWuid = wuid.split('@')[0];
+
+      profilePictureUrl = (await WAInstance.profilePicture(wuid)).profilePictureUrl;
+
       state = 'connected';
       phone = '+' + formattedWuid;
     }
 
-    /*
-        const cacheKey = `disconnected_count_${instanceName}`;
-    
-        if (!myCache.get(cacheKey)) {
-          myCache.set(cacheKey, 1);
-        }
-        const disconnectedCount = Number(myCache.get(cacheKey));
-        myCache.set(cacheKey, disconnectedCount + 1);
-        console.log('disconnectedCount: ', disconnectedCount);
-        if (disconnectedCount > 3) {
-          console.log('disconnect limit reached');
-          await delay(3000);
-        } else {
-          // await WAInstance.reloadConnection();
-        }
-        */
-
     console.log('instance-status:', `${instanceName} - ${state} = ${phone} `);
 
     if (statusReason === DisconnectReason.loggedOut || statusReason === 200) {
-      db.query(`UPDATE whatsapp_sessions
-                      SET status = '${state}'
-                      WHERE session_name = '${instanceName}'`);
+      const updatePhoneQuery = 'UPDATE whatsapp_sessions SET status = ? WHERE session_name = ?';
+      db.query(updatePhoneQuery, [state, instanceName], (err, results) => {
+        if (err) {
+          console.error('Error updating status data:', err);
+          return;
+        }
+        console.log('Data updating status successfully:', results);
+      });
+
       if (phone) {
         const instance = {
-          instanceName: instanceName,
-          owner: WAInstance.wuid,
-          profileName: (await WAInstance.getProfileName()) || 'not loaded',
-          profilePictureUrl: WAInstance.profilePictureUrl,
-          profileStatus: (await WAInstance.getProfileStatus()) || '',
-          status: WAInstance.connectionStatus.state,
+          whatsappInstance: {
+            instanceName: instanceName,
+            profileName: (await WAInstance.getProfileName()) || 'not loaded',
+            profilePictureUrl: profilePictureUrl,
+            status: WAInstance.connectionStatus.state,
+          },
         };
 
-        db.query(`UPDATE whatsapp_sessions
-                          SET phone = '${phone}'
-                          WHERE session_name = '${instanceName}' `);
-        db.query(
-          `UPDATE whatsapp_sessions
-                     SET data = '{"instance":${instance}}'
-                     WHERE session_name = '${instanceName}' `,
-        );
+        const updatePhoneQuery = 'UPDATE whatsapp_sessions SET phone = ? WHERE session_name = ?';
+        db.query(updatePhoneQuery, [phone, instanceName], (err, results) => {
+          if (err) {
+            console.error('Error updating phone data:', err);
+            return;
+          }
+          console.log('Data updating phone successfully:', results);
+        });
+
+        // Update JSON data in the database for a specific id
+        const query = 'UPDATE whatsapp_sessions SET data = ? WHERE session_name = ?';
+        db.query(query, [JSON.stringify(instance), instanceName], (err, results) => {
+          if (err) {
+            console.error('Error updating data:', err);
+            return;
+          }
+          console.log('Data updated successfully:', results);
+        });
       }
     }
 
