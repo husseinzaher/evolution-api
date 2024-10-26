@@ -53,6 +53,7 @@ export const setInstanceStatus = async (instanceName: string, status: string, st
           whatsappInstance: {
             instanceName: instanceName,
             profileName: (await WAInstance.getProfileName()) || 'not loaded',
+            profilePhone: phone,
             profilePictureUrl: profilePictureUrl,
             status: WAInstance.connectionStatus.state,
           },
