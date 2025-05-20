@@ -98,8 +98,6 @@ export class WebsocketController extends EventController implements EventControl
     };
 
     if (configService.get<Websocket>('WEBSOCKET')?.GLOBAL_EVENTS) {
-      this.socket.emit(event, message);
-
       if (logEnabled) {
         this.logger.log({
           local: `${origin}.sendData-WebsocketGlobal`,
@@ -109,22 +107,22 @@ export class WebsocketController extends EventController implements EventControl
     }
 
     try {
-      const instance = await this.get(instanceName);
+      this.socket.of(`/${instanceName}`).emit(event, message);
 
-      if (!instance?.enabled) {
-        return;
-      }
-
-      if (Array.isArray(instance?.events) && instance?.events.includes(configEv)) {
-        this.socket.of(`/${instanceName}`).emit(event, message);
-
-        if (logEnabled) {
-          this.logger.log({
-            local: `${origin}.sendData-Websocket`,
-            ...message,
-          });
-        }
-      }
+      // if (!instance?.enabled) {
+      //   return;
+      // }
+      //
+      // if (Array.isArray(instance?.events) && instance?.events.includes(configEv)) {
+      //   this.socket.of(`/${instanceName}`).emit(event, message);
+      //
+      //   if (logEnabled) {
+      //     this.logger.log({
+      //       local: `${origin}.sendData-Websocket`,
+      //       ...message,
+      //     });
+      //   }
+      // }
     } catch (err) {
       if (logEnabled) {
         this.logger.log(err);
