@@ -99,10 +99,7 @@ export class WebsocketController extends EventController implements EventControl
 
     if (configService.get<Websocket>('WEBSOCKET')?.GLOBAL_EVENTS) {
       if (logEnabled) {
-        this.logger.log({
-          local: `${origin}.sendData-WebsocketGlobal`,
-          ...message,
-        });
+        this.logger.log({ local: `${origin}.sendData-WebsocketGlobal`, ...message });
       }
     }
 
