@@ -1,3 +1,35 @@
+# 2.3.2 (2025-09-02)
+
+### Features
+
+* Add support to socks proxy
+
+### Fixed
+
+* Added key id into webhook payload in n8n service
+* Enhance RabbitMQ controller with improved connection management and shutdown procedures
+* Convert outgoing images to JPEG before sending with Chatwoot
+* Update baileys dependency to version 6.7.19
+
+# 2.3.1 (2025-07-29)
+
+### Feature
+
+* Add BaileysMessageProcessor for improved message handling and integrate rxjs for asynchronous processing
+* Enhance message processing with retry logic for error handling
+
+### Fixed
+
+* Update Baileys Version
+* Update Dockerhub Repository and Delete Config Session Variable
+* Fixed sending variables in typebot
+* Add unreadMessages in the response
+* Phone number as message ID for Evo AI
+* Fix upload to s3 when media message
+* Simplify edited message check in BaileysStartupService
+* Avoid corrupting URLs with query strings
+* Removed CONFIG_SESSION_PHONE_VERSION environment variable
+
 # 2.3.0 (2025-06-17 09:19)
 
 ### Feature
